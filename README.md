@@ -1,4 +1,4 @@
-# While-Framework
+# while-framework
 
 ## Commands:
 
