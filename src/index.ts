@@ -1,5 +1,5 @@
 import "@pixi/events";
-import "box2d";
+import "box2dweb";
 
 export * from "./services";
 export * from "./utils";
