@@ -1,13 +1,14 @@
 import { Container } from "pixi.js";
 import { PixiToBox2d } from "./Utils";
 import { IPhysicObjectOption, PhysicObject } from "./PhysicObject";
+import * as b2 from "box2d";
 
 export class Circle extends PhysicObject {
     constructor(radius: number, options: IPhysicObjectOption = {}) {
         super(options);
 
         const fixtureDef = this.getFixtureDefs()[0];
-        fixtureDef.shape = new Box2D.Collision.Shapes.b2CircleShape(radius * PixiToBox2d);
+        fixtureDef.shape = new b2.CircleShape(radius * PixiToBox2d);
     }
 
     static from(pixi: Container, options: IPhysicObjectOption = {}): Circle {

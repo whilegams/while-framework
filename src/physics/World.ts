@@ -1,10 +1,11 @@
 import { Container, Sprite, Ticker } from "pixi.js";
 import { Box2dToPixi, PixiToBox2d } from "./Utils";
 import { PhysicObject } from "./PhysicObject";
+import * as b2 from "box2d";
 
 export interface IWorldData {
-    world: Box2D.Dynamics.b2World;
-    listener: Box2D.Dynamics.b2ContactListener;
+    world: b2.World;
+    listener: b2.ContactListener;
     enabled: boolean;
     speed: number;
     targets: { [id: number]: PhysicObject };
@@ -32,7 +33,7 @@ export interface IWorldOption {
     isDisplayNegative?: boolean;
 }
 
-function beginContactHandler(contact: Box2D.Dynamics.Contacts.b2Contact) {
+function beginContactHandler(contact: b2.Contact) {
     const dataA = contact.GetFixtureA().GetUserData();
     const dataB = contact.GetFixtureB().GetUserData();
 
@@ -40,7 +41,7 @@ function beginContactHandler(contact: Box2D.Dynamics.Contacts.b2Contact) {
     dataB && dataB.emit && dataB.emit("BeginContact", dataA);
 }
 
-function endContactHandler(contact: Box2D.Dynamics.Contacts.b2Contact) {
+function endContactHandler(contact: b2.Contact) {
     const dataA = contact.GetFixtureA().GetUserData();
     const dataB = contact.GetFixtureB().GetUserData();
 
@@ -48,7 +49,7 @@ function endContactHandler(contact: Box2D.Dynamics.Contacts.b2Contact) {
     dataB && dataB.emit && dataB.emit("EndContact", dataA);
 }
 
-function preSolveHandler(contact: Box2D.Dynamics.Contacts.b2Contact) {
+function preSolveHandler(contact: b2.Contact) {
     const dataA = contact.GetFixtureA().GetUserData();
     const dataB = contact.GetFixtureB().GetUserData();
 
@@ -56,7 +57,7 @@ function preSolveHandler(contact: Box2D.Dynamics.Contacts.b2Contact) {
     dataB && dataB.emit && dataB.emit("PreSolve", dataA);
 }
 
-function postSolveHandler(contact: Box2D.Dynamics.Contacts.b2Contact) {
+function postSolveHandler(contact: b2.Contact) {
     const dataA = contact.GetFixtureA().GetUserData();
     const dataB = contact.GetFixtureB().GetUserData();
 
@@ -75,11 +76,13 @@ export class World extends Container {
         const gravityY = typeof options.gravityY === "number" ? options.gravityY : 9.8;
         const allowSleep = !!options.allowSleep;
 
-        const world = new Box2D.Dynamics.b2World(new Box2D.Common.Math.b2Vec2(gravityX, gravityY), allowSleep);
+        const world = new b2.World(new b2.Vec2(gravityX, gravityY));
+
+        world.SetAllowSleeping(allowSleep);
 
         this._physicData = {
             world,
-            listener: new Box2D.Dynamics.b2ContactListener(),
+            listener: new b2.ContactListener(),
             enabled: true,
             speed: 1,
             targets: {},
@@ -141,7 +144,8 @@ export class World extends Container {
         canvas.style.pointerEvents = "none";
         canvas.style.zIndex = "100";
 
-        const debugDraw = new Box2D.Dynamics.b2DebugDraw();
+        /*
+        const debugDraw = new b2.DebugDraw();
         debugDraw.SetSprite(ctx);
         debugDraw.SetDrawScale(Box2dToPixi);
         debugDraw.SetFillAlpha(0.5);
@@ -149,6 +153,7 @@ export class World extends Container {
         debugDraw.SetFlags(Box2D.Dynamics.b2DebugDraw.e_shapeBit | Box2D.Dynamics.b2DebugDraw.e_jointBit);
 
         this.world.SetDebugDraw(debugDraw);
+         */
 
         return canvas;
     }
@@ -162,7 +167,7 @@ export class World extends Container {
 
         world.Step((delta * this._physicData.speed) / 30, 10, 10);
         world.ClearForces();
-        world.DrawDebugData();
+        world.DebugDraw();
 
         const targets = this._physicData.targets;
 
@@ -257,7 +262,7 @@ export class World extends Container {
         this._physicData.enabled = flag;
     }
 
-    public get world(): Box2D.Dynamics.b2World {
+    public get world(): b2.World {
         return this._physicData.world;
     }
 
@@ -272,7 +277,7 @@ export class World extends Container {
 
             b2d.body = body;
 
-            body.SetPosition(new Box2D.Common.Math.b2Vec2(b2d.x * PixiToBox2d, b2d.y * PixiToBox2d));
+            body.SetPosition(new b2.Vec2(b2d.x * PixiToBox2d, b2d.y * PixiToBox2d));
             body.SetAngle(b2d.rotation);
         }
 

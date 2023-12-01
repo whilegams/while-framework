@@ -1,6 +1,7 @@
 import { IPhysicObjectOption, PhysicObject } from "./PhysicObject";
 import { PixiToBox2d } from "./Utils";
 import { Container } from "pixi.js";
+import * as b2 from "box2d";
 
 export class Rectangle extends PhysicObject {
     constructor(width: number, height: number, options: IPhysicObjectOption = {}) {
@@ -10,13 +11,8 @@ export class Rectangle extends PhysicObject {
         height *= PixiToBox2d;
 
         const fixtureDef = this.getFixtureDefs()[0];
-        const shape = new Box2D.Collision.Shapes.b2PolygonShape();
-        shape.SetAsArray([
-            new Box2D.Common.Math.b2Vec2(0, 0),
-            new Box2D.Common.Math.b2Vec2(width, 0),
-            new Box2D.Common.Math.b2Vec2(width, height),
-            new Box2D.Common.Math.b2Vec2(0, height),
-        ]);
+        const shape = new b2.PolygonShape();
+        shape.Set([new b2.Vec2(0, 0), new b2.Vec2(width, 0), new b2.Vec2(width, height), new b2.Vec2(0, height)]);
 
         fixtureDef.shape = shape;
     }

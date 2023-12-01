@@ -1,5 +1,6 @@
 import { Container } from "pixi.js";
 import { PixiToBox2d } from "./Utils";
+import * as b2 from "box2d";
 
 export interface IPhysicObjectOption {
     density?: number;
@@ -11,27 +12,27 @@ export interface IPhysicObjectOption {
     isSensor?: boolean;
 }
 
-type TPhysicObjectBody = Box2D.Dynamics.b2Body | null;
+type TPhysicObjectBody = b2.Body | null;
 
 export interface IPhysicObjectData {
     id: number;
     body: TPhysicObjectBody;
-    bodyDef: Box2D.Dynamics.b2BodyDef;
-    fixtureDefs: Box2D.Dynamics.b2FixtureDef[];
+    bodyDef: b2.BodyDef;
+    fixtureDefs: b2.FixtureDef[];
     maskBits: number;
 }
 
 function createBodyDef(isDynamic = false) {
-    const bodyDef = new Box2D.Dynamics.b2BodyDef();
-    isDynamic ? (bodyDef.type = Box2D.Dynamics.b2Body.b2_dynamicBody) : Box2D.Dynamics.b2Body.b2_staticBody;
+    const bodyDef = new b2.BodyDef();
+    isDynamic ? (bodyDef.type = b2.dynamicBody) : b2.staticBody;
     return bodyDef;
 }
 
-const dynamicBodyDef: Box2D.Dynamics.b2BodyDef = createBodyDef(true);
-const staticBodyDef: Box2D.Dynamics.b2BodyDef = createBodyDef(false);
+const dynamicBodyDef: b2.BodyDef = createBodyDef(true);
+const staticBodyDef: b2.BodyDef = createBodyDef(false);
 
 function createFixtureDef(options: IPhysicObjectOption = {}, pixi: Container) {
-    const fixtureDef = new Box2D.Dynamics.b2FixtureDef();
+    const fixtureDef = new b2.FixtureDef();
 
     fixtureDef.density = typeof options.density === "number" ? options.density : fixtureDef.density;
     fixtureDef.friction = typeof options.friction === "number" ? options.friction : fixtureDef.friction;
@@ -68,11 +69,11 @@ export class PhysicObject extends Container {
         };
     }
 
-    public getBodyDef(): Box2D.Dynamics.b2BodyDef {
+    public getBodyDef(): b2.BodyDef {
         return this._physicData.bodyDef;
     }
 
-    public getFixtureDefs(): Box2D.Dynamics.b2FixtureDef[] {
+    public getFixtureDefs(): b2.FixtureDef[] {
         return this._physicData.fixtureDefs;
     }
 
@@ -97,8 +98,7 @@ export class PhysicObject extends Container {
         }
 
         const p = body.GetPosition();
-        p.x = x * PixiToBox2d;
-        body.SetPosition(p);
+        body.SetPositionXY(x * PixiToBox2d, p.y);
     }
 
     public setY(y: number): void {
@@ -110,8 +110,7 @@ export class PhysicObject extends Container {
         }
 
         const p = body.GetPosition();
-        p.y = y * PixiToBox2d;
-        body.SetPosition(p);
+        body.SetPositionXY(p.x, y * PixiToBox2d);
     }
 
     public setRotation(rotation: number): void {
@@ -143,8 +142,10 @@ export class PhysicObject extends Container {
 
         while (list) {
             const data = list.GetFilterData();
-            data.maskBits = this._physicData.maskBits;
-            list.SetFilterData(data);
+            list.SetFilterData({
+                ...data,
+                maskBits: this._physicData.maskBits,
+            });
 
             list = list.GetNext();
         }
@@ -161,8 +162,10 @@ export class PhysicObject extends Container {
 
         while (list) {
             const data = list.GetFilterData();
-            data.maskBits = 65535;
-            list.SetFilterData(data);
+            list.SetFilterData({
+                ...data,
+                maskBits: 65535,
+            });
 
             list = list.GetNext();
         }
@@ -179,8 +182,10 @@ export class PhysicObject extends Container {
 
         while (list) {
             const data = list.GetFilterData();
-            data.maskBits = this._physicData.maskBits;
-            list.SetFilterData(data);
+            list.SetFilterData({
+                ...data,
+                maskBits: this._physicData.maskBits,
+            });
 
             list = list.GetNext();
         }
@@ -197,8 +202,10 @@ export class PhysicObject extends Container {
 
         while (list) {
             const data = list.GetFilterData();
-            data.maskBits = 0;
-            list.SetFilterData(data);
+            list.SetFilterData({
+                ...data,
+                maskBits: 0,
+            });
 
             list = list.GetNext();
         }
@@ -209,7 +216,7 @@ export class PhysicObject extends Container {
             return;
         }
 
-        this._physicData.body.SetType(Box2D.Dynamics.b2Body.b2_dynamicBody);
+        this._physicData.body.SetType(b2.dynamicBody);
     }
 
     public toStatic(): void {
@@ -217,7 +224,7 @@ export class PhysicObject extends Container {
             return;
         }
 
-        this._physicData.body.SetType(Box2D.Dynamics.b2Body.b2_staticBody);
+        this._physicData.body.SetType(b2.staticBody);
     }
 }
 
