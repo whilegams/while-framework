@@ -21,12 +21,12 @@
     "author": "whilesocold",
     "license": "MIT",
     "dependencies": {
-        "@pixi/layout": "^2.0.1",
-        "@pixi/ui": "^2.1.2",
+        "@pixi/layout": "^1.0.1",
+        "@pixi/ui": "^1.1.3",
         "@tweenjs/tween.js": "^18.6.4",
         "core-js": "^3.26.0",
         "gsap": "^3.11.5",
-        "pixi-spine": "^4.0.4",
+        "pixi-spine": "^3.1.2",
         "pixi.js": "^7.4.2",
         "regenerator-runtime": "^0.13.10"
     },
