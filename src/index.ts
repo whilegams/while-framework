@@ -1,4 +1,4 @@
-import "@pixi/events";
+import '@pixi/events';
 
-export * from "./services";
-export * from "./utils";
+export * from './services';
+export * from './utils';

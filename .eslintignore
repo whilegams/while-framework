@@ -1,0 +1,16 @@
+.git
+
+node_modules/*
+build/*
+dist/*
+out/*
+
+.idea
+.vscode
+
+.eslintcache
+
+yarn.lock
+coverage/*
+storybook-static/*
+# src/@services/chart
