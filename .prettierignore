@@ -11,5 +11,3 @@ out/*
 .eslintcache
 
 yarn.lock
-coverage/*
-storybook-static/*
