@@ -3,6 +3,10 @@ import gsap from 'gsap';
 import { appService } from './AppService';
 
 export class Page extends Container {
+  constructor(...args: unknown[]) {
+    super();
+  }
+
   public init(): void {}
 
   public destroy(): void {
@@ -15,29 +19,17 @@ export class Page extends Container {
 }
 
 export class PageService extends Container {
-  private readonly pages: Map<string, Page>;
   private currentPage: Page | undefined;
 
   constructor() {
     super();
-    this.pages = new Map<string, Page>();
   }
 
-  public addPage(name: string, page: Page): void {
-    page.alpha = 0;
-    this.pages.set(name, page);
-  }
-
-  public async setPage(name: string): Promise<void> {
+  public async setPage(
+    pageClass: typeof Page,
+    ...args: unknown[]
+  ): Promise<void> {
     return new Promise((resolve, reject) => {
-      const page = this.pages.get(name);
-      if (!page) {
-        return reject('Page not found');
-      }
-      if (this.children?.includes(page)) {
-        return reject('Page already added');
-      }
-
       if (this.currentPage) {
         console.log(`PageService::setPage() - Close previous page ${name}`);
 
@@ -55,8 +47,7 @@ export class PageService extends Container {
         });
       }
 
-      this.currentPage = page;
-      this.currentPage.name = name;
+      this.currentPage = new pageClass(args);
       this.currentPage.alpha = 0;
       this.currentPage.init();
       this.currentPage.resize(
@@ -77,14 +68,12 @@ export class PageService extends Container {
   }
 
   public resize(width: number, height: number, scale: number): void {
-    // this.pages.forEach((page) => page.resize(width, height, scale));
     if (this.currentPage) {
       this.currentPage.resize(width, height, scale);
     }
   }
 
   public update(dt: number = 1): void {
-    // this.pages.forEach((page) => page.update(dt));
     if (this.currentPage) {
       this.currentPage.update(dt);
     }
