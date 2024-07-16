@@ -41,36 +41,38 @@ export class PageService extends Container {
       if (this.currentPage) {
         console.log(`PageService::setPage() - Close previous page ${name}`);
 
-        gsap.killTweensOf(this.currentPage);
-        gsap.to(this.currentPage, 0.3, {
+        const fadedPage = this.currentPage;
+
+        gsap.killTweensOf(fadedPage);
+        gsap.to(fadedPage, 0.3, {
           alpha: 0,
           onComplete: () => {
-            if (this.currentPage) {
-              this.currentPage.destroy();
-              this.removeChild(this.currentPage);
-
-              this.currentPage = page;
-              this.currentPage.name = name;
-              this.currentPage.alpha = 0;
-              this.currentPage.init();
-              this.currentPage.resize(
-                appService.getWidth(),
-                appService.getHeight(),
-                appService.getScale()
-              );
-
-              this.addChild(this.currentPage);
-
-              gsap.killTweensOf(this.currentPage);
-              gsap.to(this.currentPage, 0.3, { alpha: 1 });
-
-              console.log(`PageService::setPage() Open new page ${name}`);
-
-              resolve();
+            if (fadedPage) {
+              fadedPage.destroy();
+              this.removeChild(fadedPage);
             }
           },
         });
       }
+
+      this.currentPage = page;
+      this.currentPage.name = name;
+      this.currentPage.alpha = 0;
+      this.currentPage.init();
+      this.currentPage.resize(
+        appService.getWidth(),
+        appService.getHeight(),
+        appService.getScale()
+      );
+
+      this.addChild(this.currentPage);
+
+      gsap.killTweensOf(this.currentPage);
+      gsap.to(this.currentPage, 0.3, { alpha: 1 });
+
+      console.log(`PageService::setPage() Open new page ${name}`);
+
+      resolve();
     });
   }
 
