@@ -3,15 +3,15 @@ import gsap from 'gsap';
 import { appService } from './AppService';
 
 export class Page extends Container {
-  public init(): void {
-  }
+  public init(): void {}
 
   public destroy(): void {
     super.destroy({ children: true });
   }
 
-  public resize(width: number, height: number, scale: number): void {
-  }
+  public update(dt: number): void;
+
+  public resize(width: number, height: number, scale: number): void {}
 }
 
 export class PageService extends Container {
@@ -59,7 +59,7 @@ export class PageService extends Container {
       this.currentPage.resize(
         appService.getWidth(),
         appService.getHeight(),
-        appService.getScale(),
+        appService.getScale()
       );
 
       this.addChild(this.currentPage);
@@ -74,7 +74,17 @@ export class PageService extends Container {
   }
 
   public resize(width: number, height: number, scale: number): void {
-    this.pages.forEach((page) => page.resize(width, height, scale));
+    // this.pages.forEach((page) => page.resize(width, height, scale));
+    if (this.currentPage) {
+      this.currentPage.resize(width, height, scale);
+    }
+  }
+
+  public update(dt: number = 1): void {
+    // this.pages.forEach((page) => page.update(dt));
+    if (this.currentPage) {
+      this.currentPage.update(dt);
+    }
   }
 
   public getCurrentPage(): Page | undefined {
