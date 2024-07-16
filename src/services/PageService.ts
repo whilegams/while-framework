@@ -24,6 +24,7 @@ export class PageService extends Container {
   }
 
   public addPage(name: string, page: Page): void {
+    page.alpha = 0;
     this.pages.set(name, page);
   }
 
