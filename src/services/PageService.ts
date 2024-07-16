@@ -9,7 +9,7 @@ export class Page extends Container {
     super.destroy({ children: true });
   }
 
-  public update(dt: number): void;
+  public update(dt: number): void {}
 
   public resize(width: number, height: number, scale: number): void {}
 }
@@ -47,29 +47,29 @@ export class PageService extends Container {
             if (this.currentPage) {
               this.currentPage.destroy();
               this.removeChild(this.currentPage);
+
+              this.currentPage = page;
+              this.currentPage.name = name;
+              this.currentPage.alpha = 0;
+              this.currentPage.init();
+              this.currentPage.resize(
+                appService.getWidth(),
+                appService.getHeight(),
+                appService.getScale()
+              );
+
+              this.addChild(this.currentPage);
+
+              gsap.killTweensOf(this.currentPage);
+              gsap.to(this.currentPage, 0.3, { alpha: 1 });
+
+              console.log(`PageService::setPage() Open new page ${name}`);
+
+              resolve();
             }
           },
         });
       }
-
-      this.currentPage = page;
-      this.currentPage.name = name;
-      this.currentPage.alpha = 0;
-      this.currentPage.init();
-      this.currentPage.resize(
-        appService.getWidth(),
-        appService.getHeight(),
-        appService.getScale()
-      );
-
-      this.addChild(this.currentPage);
-
-      gsap.killTweensOf(this.currentPage);
-      gsap.to(this.currentPage, 0.3, { alpha: 1 });
-
-      console.log(`PageService::setPage() Open new page ${name}`);
-
-      resolve();
     });
   }
 
