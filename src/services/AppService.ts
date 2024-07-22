@@ -1,4 +1,10 @@
-import { Application, BaseTexture, Container, IRenderer, MIPMAP_MODES } from 'pixi.js';
+import {
+  Application,
+  BaseTexture,
+  Container,
+  IRenderer,
+  MIPMAP_MODES,
+} from 'pixi.js';
 import { pageService } from './PageService';
 
 export interface AppServiceOptions {
@@ -78,16 +84,16 @@ export class AppService {
       this.width = innerWidth;
       this.height = innerHeight;
 
-      this.scale = Math.min(
+      this.scale = 1; /* Math.min(
         this.maxScale,
         Math.min(
           this.width / this.initialWidth,
           this.height / this.initialWidth,
         ),
-      );
+      ); */
 
       this.app.renderer.resize(this.width, this.height);
-      this.app.stage.scale.set(this.scale);
+      // this.app.stage.scale.set(this.scale);
 
       pageService.resize(this.width, this.height, this.scale);
     }
