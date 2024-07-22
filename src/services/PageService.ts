@@ -3,7 +3,7 @@ import gsap from 'gsap';
 import { appService } from './AppService';
 
 export class Page extends Container {
-  constructor(...args: unknown[]) {
+  constructor(protected readonly props?: any) {
     super();
   }
 
@@ -25,10 +25,7 @@ export class PageService extends Container {
     super();
   }
 
-  public async setPage(
-    pageClass: typeof Page,
-    ...args: unknown[]
-  ): Promise<void> {
+  public async setPage(pageClass: typeof Page, props?: any): Promise<void> {
     return new Promise((resolve, reject) => {
       if (this.currentPage) {
         console.log(`PageService::setPage() - Close previous page ${name}`);
@@ -47,7 +44,7 @@ export class PageService extends Container {
         });
       }
 
-      this.currentPage = new pageClass(args);
+      this.currentPage = new pageClass(props);
       this.currentPage.alpha = 0;
       this.currentPage.init();
       this.currentPage.resize(
