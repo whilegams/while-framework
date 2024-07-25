@@ -18,18 +18,31 @@ export class Page extends Container {
   public resize(width: number, height: number, scale: number): void {}
 }
 
+export class Modal extends Page {}
+
 export class PageService extends Container {
+  private readonly modalList: Modal[];
+
+  private readonly pageContainer: Container;
+  private readonly modalContainer: Container;
+
   private currentPage: Page | undefined;
 
   constructor() {
     super();
+
+    this.modalList = [];
+
+    this.pageContainer = new Container();
+    this.modalContainer = new Container();
+
+    this.addChild(this.pageContainer);
+    this.addChild(this.modalContainer);
   }
 
   public async setPage(pageClass: typeof Page, props?: any): Promise<void> {
     return new Promise((resolve, reject) => {
       if (this.currentPage) {
-        console.log(`PageService::setPage() - Close previous page ${name}`);
-
         const fadedPage = this.currentPage;
 
         gsap.killTweensOf(fadedPage);
@@ -38,7 +51,7 @@ export class PageService extends Container {
           onComplete: () => {
             if (fadedPage) {
               fadedPage.destroy();
-              this.removeChild(fadedPage);
+              this.pageContainer.removeChild(fadedPage);
             }
           },
         });
@@ -53,14 +66,48 @@ export class PageService extends Container {
         appService.getScale()
       );
 
-      this.addChild(this.currentPage);
+      this.pageContainer.addChild(this.currentPage);
 
       gsap.killTweensOf(this.currentPage);
       gsap.to(this.currentPage, 0.3, { alpha: 1 });
 
-      console.log(`PageService::setPage() Open new page ${name}`);
+      resolve();
+    });
+  }
+
+  public async openModal(modalClass: typeof Modal, props?: any): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const modal = new modalClass(props);
+      modal.alpha = 0;
+      modal.init();
+      modal.resize(
+        appService.getWidth(),
+        appService.getHeight(),
+        appService.getScale()
+      );
+
+      this.modalList.push(modal);
+      this.modalContainer.addChild(modal);
+
+      gsap.killTweensOf(modal);
+      gsap.to(modal, 0.3, { alpha: 1 });
 
       resolve();
+    });
+  }
+
+  public async closeModal(modal: Modal): Promise<void> {
+    return new Promise((resolve, reject) => {
+      gsap.killTweensOf(modal);
+      gsap.to(modal, 0.3, {
+        alpha: 0,
+        onComplete: () => {
+          modal.destroy();
+          this.modalContainer.removeChild(modal);
+
+          resolve();
+        },
+      });
     });
   }
 
@@ -68,12 +115,14 @@ export class PageService extends Container {
     if (this.currentPage) {
       this.currentPage.resize(width, height, scale);
     }
+    this.modalList.forEach((modal) => modal.resize(width, height, scale));
   }
 
   public update(dt: number = 1): void {
     if (this.currentPage) {
       this.currentPage.update(dt);
     }
+    this.modalList.forEach((modal) => modal.update(dt));
   }
 
   public getCurrentPage(): Page | undefined {
