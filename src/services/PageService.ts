@@ -13,6 +13,10 @@ export class Page extends Container {
     super.destroy({ children: true });
   }
 
+  public async close(): Promise<void> {
+    return pageService.closeModal(this);
+  }
+
   public update(dt: number): void {}
 
   public resize(width: number, height: number, scale: number): void {}
@@ -103,6 +107,8 @@ export class PageService extends Container {
         alpha: 0,
         onComplete: () => {
           modal.destroy();
+
+          this.modalList.splice(this.modalList.indexOf(modal), 1);
           this.modalContainer.removeChild(modal);
 
           resolve();
