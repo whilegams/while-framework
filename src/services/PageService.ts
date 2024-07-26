@@ -131,6 +131,10 @@ export class PageService extends Container {
     this.modalList.forEach((modal) => modal.update(dt));
   }
 
+  public hasModals(): boolean {
+    return !!this.modalList.length;
+  }
+
   public getCurrentPage(): Page | undefined {
     return this.currentPage;
   }
