@@ -4,6 +4,7 @@ import {
   Container,
   IRenderer,
   MIPMAP_MODES,
+  settings,
 } from 'pixi.js';
 import { pageService } from './PageService';
 
@@ -33,6 +34,12 @@ export class AppService {
   constructor(options: AppServiceOptions = AppServiceOptionsDefault) {
     const { width, height, backgroundColor } = options;
 
+    if (settings.RENDER_OPTIONS) {
+      settings.RENDER_OPTIONS.hello = false;
+    }
+
+    settings.RESOLUTION = window.devicePixelRatio || 1;
+
     this.initialWidth = width;
     this.initialHeight = height;
     this.width = width;
@@ -40,10 +47,9 @@ export class AppService {
     this.scale = 1;
 
     this.app = new Application({
-      width,
-      height,
       backgroundColor,
       autoDensity: true,
+      resizeTo: window,
       autoStart: true,
       eventMode: 'passive',
       eventFeatures: {
@@ -54,6 +60,8 @@ export class AppService {
         wheel: true,
       },
     });
+
+    this.app.ticker.add(this.update, this);
   }
 
   public init(): void {
@@ -77,14 +85,20 @@ export class AppService {
     }
   }
 
+  public update = (dt: number): void => {
+    pageService.update(dt);
+  };
+
   public resize = (): void => {
-    const { innerWidth, innerHeight } = window;
-
-    if (innerWidth !== this.width || innerHeight !== this.height) {
-      this.width = innerWidth;
-      this.height = innerHeight;
-
-      this.scale = 1; /* Math.min(
+    /*
+    if (
+      this.width !== window.innerWidth ||
+      this.height !== window.innerHeight
+    ) {
+      this.width = window.innerWidth;
+      this.height = window.innerHeight;
+      */
+    this.scale = 1; /*0.5;*/ /* Math.min(
         this.maxScale,
         Math.min(
           this.width / this.initialWidth,
@@ -92,11 +106,18 @@ export class AppService {
         ),
       ); */
 
-      this.app.renderer.resize(this.width, this.height);
-      // this.app.stage.scale.set(this.scale);
+    // this.app.renderer.resize(this.width, this.height);
+    // this.app.stage.scale.set(this.scale);
 
-      pageService.resize(this.width, this.height, this.scale);
-    }
+    this.width = this.app.screen.width;
+    this.height = this.app.screen.height;
+
+    pageService.resize(
+      this.app.screen.width,
+      this.app.screen.height,
+      this.scale
+    );
+    //}
   };
 
   public getWidth(): number {
