@@ -42,8 +42,8 @@ export class AppService {
 
     this.initialWidth = width;
     this.initialHeight = height;
-    this.width = width;
-    this.height = height;
+    this.width = 0;
+    this.height = 0;
     this.scale = 1;
 
     this.app = new Application({
@@ -91,10 +91,11 @@ export class AppService {
     this.resize();
   };
 
-  public resize = (): void => {
+  public resize = (now = false): void => {
     if (
-      this.width !== window.innerWidth ||
-      this.height !== window.innerHeight
+      now
+        ? true
+        : this.width !== window.innerWidth || this.height !== window.innerHeight
     ) {
       this.width = window.innerWidth;
       this.height = window.innerHeight;
