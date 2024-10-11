@@ -27,8 +27,6 @@ export class AppService {
 
   private width: number;
   private height: number;
-
-  private maxScale = 0.5;
   private scale: number;
 
   constructor(options: AppServiceOptions = AppServiceOptionsDefault) {
@@ -62,6 +60,7 @@ export class AppService {
     });
 
     this.app.ticker.add(this.update, this);
+    this.update();
   }
 
   public init(): void {
@@ -85,34 +84,24 @@ export class AppService {
     }
   }
 
-  public update = (dt: number): void => {
+  public update = (dt: number = 1): void => {
     pageService.update(dt);
 
     this.resize();
   };
 
   public resize = (now = false): void => {
-    this.width = window.innerWidth;
-    this.height = window.innerHeight;
-    this.scale = 1; /*0.5;*/ /* Math.min(
-        this.maxScale,
-        Math.min(
-          this.width / this.initialWidth,
-          this.height / this.initialWidth,
-        ),
-      ); */
+    if (
+      now
+        ? true
+        : this.width !== this.app.screen.width ||
+          this.height !== this.app.screen.height
+    ) {
+      this.width = this.app.screen.width;
+      this.height = this.app.screen.height;
 
-    // this.app.renderer.resize(this.width, this.height);
-    // this.app.stage.scale.set(this.scale);
-
-    this.width = this.app.screen.width;
-    this.height = this.app.screen.height;
-
-    pageService.resize(
-      this.app.screen.width,
-      this.app.screen.height,
-      this.scale
-    );
+      pageService.resize(this.width, this.height, this.scale);
+    }
   };
 
   public getWidth(): number {
