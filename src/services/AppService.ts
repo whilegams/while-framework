@@ -92,14 +92,9 @@ export class AppService {
   };
 
   public resize = (now = false): void => {
-    if (
-      now
-        ? true
-        : this.width !== window.innerWidth || this.height !== window.innerHeight
-    ) {
-      this.width = window.innerWidth;
-      this.height = window.innerHeight;
-      this.scale = 1; /*0.5;*/ /* Math.min(
+    this.width = window.innerWidth;
+    this.height = window.innerHeight;
+    this.scale = 1; /*0.5;*/ /* Math.min(
         this.maxScale,
         Math.min(
           this.width / this.initialWidth,
@@ -107,18 +102,17 @@ export class AppService {
         ),
       ); */
 
-      // this.app.renderer.resize(this.width, this.height);
-      // this.app.stage.scale.set(this.scale);
+    // this.app.renderer.resize(this.width, this.height);
+    // this.app.stage.scale.set(this.scale);
 
-      this.width = this.app.screen.width;
-      this.height = this.app.screen.height;
+    this.width = this.app.screen.width;
+    this.height = this.app.screen.height;
 
-      pageService.resize(
-        this.app.screen.width,
-        this.app.screen.height,
-        this.scale
-      );
-    }
+    pageService.resize(
+      this.app.screen.width,
+      this.app.screen.height,
+      this.scale
+    );
   };
 
   public getWidth(): number {
