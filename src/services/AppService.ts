@@ -94,11 +94,10 @@ export class AppService {
     if (
       now
         ? true
-        : this.width !== this.app.screen.width ||
-          this.height !== this.app.screen.height
+        : this.width !== window.innerWidth || this.height !== window.innerHeight
     ) {
-      this.width = this.app.screen.width;
-      this.height = this.app.screen.height;
+      this.width = window.innerWidth;
+      this.height = window.innerHeight;
 
       pageService.resize(this.width, this.height, this.scale);
     }
