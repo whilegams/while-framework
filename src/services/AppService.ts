@@ -94,10 +94,13 @@ export class AppService {
     if (
       now
         ? true
-        : this.width !== window.innerWidth || this.height !== window.innerHeight
+        : this.width !== window.innerWidth ||
+          this.height !== window.innerHeight ||
+          this.width === 0 ||
+          this.height === 0
     ) {
-      this.width = window.innerWidth;
-      this.height = window.innerHeight;
+      this.width = document.body.clientWidth;
+      this.height = document.body.clientHeight;
 
       pageService.resize(this.width, this.height, this.scale);
     }
