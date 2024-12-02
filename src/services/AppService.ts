@@ -1,12 +1,6 @@
-import {
-  Application,
-  BaseTexture,
-  Container,
-  IRenderer,
-  MIPMAP_MODES,
-  settings,
-} from 'pixi.js';
+import { AbstractRenderer, Application, Container, Ticker } from 'pixi.js';
 import { pageService } from './PageService';
+import type { Renderer } from 'pixi.js/lib/rendering/renderers/types';
 
 export interface AppServiceOptions {
   width: number;
@@ -32,11 +26,7 @@ export class AppService {
   constructor(options: AppServiceOptions = AppServiceOptionsDefault) {
     const { width, height, backgroundColor } = options;
 
-    if (settings.RENDER_OPTIONS) {
-      settings.RENDER_OPTIONS.hello = false;
-    }
-
-    settings.RESOLUTION = window.devicePixelRatio || 1;
+    AbstractRenderer.defaultOptions.resolution = window.devicePixelRatio || 1;
 
     this.initialWidth = width;
     this.initialHeight = height;
@@ -60,7 +50,7 @@ export class AppService {
     });
 
     this.app.ticker.add(this.update, this);
-    this.update();
+    this.update(this.app.ticker);
   }
 
   public init(): void {
@@ -72,20 +62,14 @@ export class AppService {
     // window.addEventListener('resize', this.resize);
   }
 
-  public setPixelArtMode(value: boolean): void {
-    BaseTexture.defaultOptions.mipmap = value
-      ? MIPMAP_MODES.OFF
-      : MIPMAP_MODES.ON;
-  }
-
   public destroy(): void {
     if (this.app) {
       this.app.destroy(true);
     }
   }
 
-  public update = (dt: number = 1): void => {
-    pageService.update(dt);
+  public update = (ticker: Ticker): void => {
+    pageService.update(ticker.deltaTime);
 
     this.resize();
   };
@@ -122,7 +106,7 @@ export class AppService {
     return this.app;
   }
 
-  public getRenderer(): IRenderer {
+  public getRenderer(): Renderer {
     return this.app.renderer;
   }
 
