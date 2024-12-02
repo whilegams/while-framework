@@ -18,6 +18,7 @@ export class AppService {
   private readonly app: Application;
   private readonly initialWidth: number;
   private readonly initialHeight: number;
+  private readonly backgroundColor: number;
 
   private width: number;
   private height: number;
@@ -25,6 +26,8 @@ export class AppService {
 
   constructor(options: AppServiceOptions = AppServiceOptionsDefault) {
     const { width, height, backgroundColor } = options;
+
+    this.backgroundColor = backgroundColor;
 
     AbstractRenderer.defaultOptions.resolution = window.devicePixelRatio || 1;
 
@@ -34,8 +37,17 @@ export class AppService {
     this.height = 0;
     this.scale = 1;
 
-    this.app = new Application({
-      backgroundColor,
+    this.app = new Application();
+
+    Ticker.shared.add(this.update, this);
+    this.update(Ticker.shared);
+  }
+
+  public async init(): Promise<void> {
+    await this.app.init({
+      width: this.initialWidth,
+      height: this.initialHeight,
+      backgroundColor: this.backgroundColor,
       autoDensity: true,
       resizeTo: window,
       autoStart: true,
@@ -47,13 +59,8 @@ export class AppService {
         click: true,
         wheel: true,
       },
+      view: document.createElement('canvas'),
     });
-
-    Ticker.shared.add(this.update, this);
-    this.update(Ticker.shared);
-  }
-
-  public init(): void {
     document.body.appendChild(this.app.canvas);
 
     this.app.stage.addChild(pageService);
