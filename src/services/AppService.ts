@@ -49,12 +49,12 @@ export class AppService {
       },
     });
 
-    this.app.ticker.add(this.update, this);
-    this.update(this.app.ticker);
+    Ticker.shared.add(this.update, this);
+    this.update(Ticker.shared);
   }
 
   public init(): void {
-    document.body.appendChild(this.app.view as HTMLCanvasElement);
+    document.body.appendChild(this.app.canvas);
 
     this.app.stage.addChild(pageService);
 
