@@ -55,7 +55,7 @@ export class AppService {
       eventFeatures: {
         move: true,
         /** disables the global move events which can be very expensive in large scenes */
-        globalMove: false,
+        globalMove: true,
         click: true,
         wheel: true,
       },
