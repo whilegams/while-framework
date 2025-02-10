@@ -1,9 +1,9 @@
 import { defaultButtonTextStyle, theme } from 'consts';
 import i18next from 'i18next';
 import { Container, Graphics, Rectangle, Sprite, Text } from 'pixi.js';
-import { assetService } from 'services';
-import type { Balance, Currency, CurrencyIcon } from 'types';
-import { getDeviceScale } from 'utils';
+import { assetService } from '../services';
+import type { Balance, Currency, CurrencyIcon } from '../types';
+import { getDeviceScale } from '../utils';
 
 export interface WalletListItemArgs {
   value: Balance;

@@ -1,10 +1,10 @@
 import { FancyButton } from '@pixi/ui';
-import { GameConfig, theme } from 'consts';
 
 import { Container, Graphics, Sprite } from 'pixi.js';
-import { assetService } from 'services';
-import { currencyType } from 'types';
-import { getDeviceScale } from 'utils';
+import { GameConfig, theme } from '../consts';
+import { assetService } from '../services';
+import { currencyType } from '../types';
+import { getDeviceScale } from '../utils';
 
 import { RightBar } from './RightBar';
 import { Wallet, WalletEvent } from './Wallet';

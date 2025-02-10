@@ -1,6 +1,6 @@
-import { theme } from 'consts/theme';
 import gsap from 'gsap';
 import { Container, Graphics } from 'pixi.js';
+import { theme } from '../consts';
 import { RightBarItem, type RightBarItemArgs } from './RightBarItem';
 
 export interface RightBarArgs {

@@ -1,6 +1,6 @@
 import { theme } from 'consts';
 import { Container, Graphics } from 'pixi.js';
-import type { Balance, Currency, CurrencyIcon } from 'types';
+import type { Balance, Currency, CurrencyIcon } from '../types';
 import { WalletListItem, type WalletListItemArgs } from './WalletListItem';
 
 export interface WalletListArgs {

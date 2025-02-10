@@ -1,10 +1,10 @@
 import { FancyButton } from '@pixi/ui';
-import { defaultButtonTextStyle, theme } from 'consts';
 import i18next from 'i18next';
 import { Container, Graphics, Sprite, Text } from 'pixi.js';
-import { assetService } from 'services';
-import { Currency } from 'types';
-import { getDeviceScale } from 'utils';
+import { defaultButtonTextStyle, theme } from '../consts';
+import { assetService } from '../services';
+import { Currency } from '../types';
+import { getDeviceScale } from '../utils';
 
 export interface WalletArgs {
   currentCurrency: Currency;
