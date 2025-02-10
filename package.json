@@ -21,9 +21,10 @@
   "license": "MIT",
   "dependencies": {
     "@pixi/ui": "^2.2.0",
-    "pixi.js": "^8.6.2",
     "core-js": "^3.26.0",
     "gsap": "^3.11.5",
+    "i18next": "^24.2.2",
+    "pixi.js": "^8.6.2",
     "regenerator-runtime": "^0.13.10"
   },
   "devDependencies": {
