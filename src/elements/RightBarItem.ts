@@ -1,7 +1,6 @@
-import i18next from 'i18next';
 import { Container, Graphics, Sprite, Text } from 'pixi.js';
 import { defaultButtonTextStyle, theme } from '../consts';
-import { assetService } from '../services';
+import { assetService, tr } from '../services';
 import { getDeviceScale } from '../utils';
 
 export interface RightBarItemArgs {
@@ -49,7 +48,7 @@ export class RightBarItem extends Container {
     this.addChild(this.icon);
 
     this.labelText = new Text({
-      text: i18next.t(args.text),
+      text: tr(args.text),
       style: {
         ...defaultButtonTextStyle,
         fontSize: 16,

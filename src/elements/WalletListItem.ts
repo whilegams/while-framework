@@ -1,7 +1,6 @@
-import i18next from 'i18next';
 import { Container, Graphics, Rectangle, Sprite, Text } from 'pixi.js';
 import { defaultButtonTextStyle, theme } from '../consts';
-import { assetService } from '../services';
+import { assetService, tr } from '../services';
 import type { Balance, Currency, CurrencyIcon } from '../types';
 import { getDeviceScale } from '../utils';
 
@@ -50,7 +49,7 @@ export class WalletListItem extends Container {
     this.addChild(this.valueText);
 
     this.currencyText = new Text({
-      text: i18next.t(args.type).toString(),
+      text: tr(args.type).toString(),
       style: {
         ...defaultButtonTextStyle,
         fontSize: 16,

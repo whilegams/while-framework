@@ -1,8 +1,7 @@
 import { FancyButton } from '@pixi/ui';
-import i18next from 'i18next';
 import { Container, Graphics, Sprite, Text } from 'pixi.js';
 import { defaultButtonTextStyle, theme } from '../consts';
-import { assetService } from '../services';
+import { assetService, tr } from '../services';
 import { Currency } from '../types';
 import { getDeviceScale } from '../utils';
 
@@ -49,7 +48,7 @@ export class Wallet extends Container {
     this.addChild(this.bg);
 
     this.balanceLabelText = new Text({
-      text: i18next.t('balance'),
+      text: tr('balance'),
       style: {
         ...defaultButtonTextStyle,
         fontSize: 14,

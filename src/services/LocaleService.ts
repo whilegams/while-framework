@@ -9,6 +9,12 @@ export class LocaleService {
       resources,
     });
   }
+
+  public tr(key: string): string {
+    return i18next.t(key);
+  }
 }
 
 export const localeService = new LocaleService();
+
+export const tr = (key: string) => localeService.tr(key);
