@@ -47,7 +47,8 @@ export class AppService {
     await this.app.init({
       width: this.initialWidth,
       height: this.initialHeight,
-      backgroundColor: this.backgroundColor,
+      backgroundAlpha: 0,
+      clearBeforeRender: false,
       autoDensity: true,
       resizeTo: window,
       autoStart: true,
