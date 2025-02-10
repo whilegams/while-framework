@@ -20,11 +20,11 @@
   "author": "whilesocold",
   "license": "MIT",
   "dependencies": {
-    "@pixi/ui": "^2.2.0",
+    "@pixi/ui": "^2.2.1",
     "core-js": "^3.26.0",
     "gsap": "^3.11.5",
     "i18next": "^23.14.0",
-    "pixi.js": "^8.6.2",
+    "pixi.js": "^8.7.3",
     "regenerator-runtime": "^0.13.10"
   },
   "devDependencies": {
