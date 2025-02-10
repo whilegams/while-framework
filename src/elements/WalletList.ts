@@ -1,5 +1,5 @@
-import { theme } from 'consts';
 import { Container, Graphics } from 'pixi.js';
+import { theme } from '../consts';
 import type { Balance, Currency, CurrencyIcon } from '../types';
 import { WalletListItem, type WalletListItemArgs } from './WalletListItem';
 
