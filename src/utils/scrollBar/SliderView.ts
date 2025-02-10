@@ -1,0 +1,288 @@
+import { Container, EventEmitter, FederatedPointerEvent, FederatedWheelEvent, Graphics, Point } from 'pixi.js';
+import { SliderEventContext, SliderEventTypes } from './SliderEvent';
+import { SliderViewOption, SliderViewOptionUtil } from './SliderViewOption';
+import { SliderViewUtil } from './SliderViewUtil';
+
+/**
+ * スライダー用クラスです
+ *
+ * 使用上の注意 :
+ * オブジェクトのサイズの計測にgetLocalBounds関数を使用しています。
+ * hitAreaでサイズをあらかじめ与えてください。
+ */
+
+export class SliderView extends Container {
+  public static readonly MAX_RATE: number = 1.0;
+  readonly buttonRootContainer: Container | HTMLCanvasElement;
+  readonly isHorizontal: boolean = true;
+  wheelSpeed = 0.0003;
+  readonly canvas?: HTMLCanvasElement;
+  readonly sliderEventEmitter = new EventEmitter<SliderEventTypes>();
+  protected readonly _base: Container; // スライダーの地
+  protected readonly _bar?: Container; // スライドにあわせて表示されるバー
+  protected readonly _barMask?: Graphics; // バーのマスク
+  protected readonly _slideButton: Container; // スライドボタン
+  protected _minPosition: number; // スライダーボタンの座標の最小値
+  protected _maxPosition: number; // スライダーボタンの座標の最大値
+  protected readonly dragStartPos: Point = new Point();
+  private isDragging = false; // 現在スライド中か否か
+
+  /**
+   * @param option
+   */
+  constructor(option: SliderViewOption) {
+    super();
+
+    const initOption = SliderViewOptionUtil.init(option);
+
+    this.canvas = initOption.canvas;
+    this._base = this.initBase(initOption.base);
+    this._bar = this.initBarAndMask(initOption?.bar);
+    this._barMask = this.initBarAndMask(initOption?.mask) as Graphics;
+    if (this._bar && this._barMask) this._bar.mask = this._barMask;
+
+    this._slideButton = this.initSliderButton(initOption.button);
+    this.buttonRootContainer = SliderViewUtil.getRootContainer(
+      this.canvas,
+      this._slideButton
+    );
+
+    this._minPosition = initOption.minPosition;
+    this._maxPosition = initOption.maxPosition;
+    this.isHorizontal = initOption.isHorizontal;
+    this._rate = initOption.rate;
+
+    this.changeRate(this._rate);
+  }
+
+  /**
+   * 現在のスライダーの位置の割合。
+   * MIN 0.0 ~ SliderView.MAX_RATE。
+   */
+  private _rate: number;
+
+  get rate() {
+    return this._rate;
+  }
+
+  /**
+   * スライダーの位置を変更する
+   * @param  rate  スライダーの位置 MIN 0.0 ~ MAX [SliderView.MAX_RATE]
+   */
+  public changeRate(rate: number): void {
+    //ドラッグ中は外部からの操作を無視する。
+    if (this.isDragging) return;
+
+    this._rate = rate;
+    const pos: number = this.convertRateToPixel(this._rate);
+    this.updateParts(pos);
+
+    this.sliderEventEmitter.emit(
+      'slider_change',
+      new SliderEventContext(this.rate)
+    );
+  }
+
+  /**
+   * このインスタンスを破棄する。
+   * @param  e
+   */
+  public dispose(): void {
+    this.onDisposeFunction();
+  }
+
+  protected onPressedSliderButton(e: FederatedPointerEvent): void {
+    this.isDragging = true;
+    const target: Container = e.currentTarget as Container;
+
+    const localPos = this.toLocal(e.global);
+    this.dragStartPos.set(localPos.x - target.x, localPos.y - target.y);
+
+    SliderViewUtil.addEventListenerToTarget(
+      this.buttonRootContainer,
+      'pointermove',
+      this.moveSlider
+    );
+
+    this._slideButton.on('pointerup', this.moveSliderFinish);
+    this._slideButton.on('pointerupoutside', this.moveSliderFinish);
+  }
+
+  protected onMoveSlider(e: FederatedPointerEvent | PointerEvent): void {
+    const mousePos: number = this.limitSliderButtonPosition(e);
+
+    this.updateParts(mousePos);
+    this._rate = this.convertPixelToRate(mousePos);
+
+    this.sliderEventEmitter.emit(
+      'slider_change',
+      new SliderEventContext(this.rate)
+    );
+  }
+
+  /**
+   * スライダーボタンの位置を制限する関数
+   * @return 制限で切り落とされたスライダーボタンの座標値 座標の原点はSliderViewであり、ボタンやバーではない。
+   */
+  protected limitSliderButtonPosition(
+    evt: FederatedPointerEvent | PointerEvent
+  ): number {
+    const mousePos: number = SliderViewUtil.getPointerLocalPosition(
+      this,
+      this.isHorizontal,
+      this.dragStartPos,
+      evt
+    );
+    return SliderViewUtil.clamp(mousePos, this._maxPosition, this._minPosition);
+  }
+
+  /**
+   * スライダーの地をクリックした際の処理
+   * その位置までスライダーをジャンプする
+   * @param evt
+   */
+  protected onPressBase(evt: FederatedPointerEvent): void {
+    this.dragStartPos.set(0, 0);
+    this.moveSlider(evt);
+    this.sliderEventEmitter.emit(
+      'slider_change_finished',
+      new SliderEventContext(this.rate)
+    );
+  }
+
+  /**
+   * スライダーの割合から、スライダーの位置を取得する
+   * @param  rate
+   * @return
+   */
+  protected convertRateToPixel(rate: number): number {
+    return SliderViewUtil.convertRateToPixel(
+      rate,
+      this._maxPosition,
+      this._minPosition
+    );
+  }
+
+  /**
+   * スライダーの座標から、スライダーの割合を取得する
+   * @param  pixel
+   * @return
+   */
+  protected convertPixelToRate(pixel: number): number {
+    return SliderViewUtil.convertPixelToRate(
+      pixel,
+      this._maxPosition,
+      this._minPosition
+    );
+  }
+
+  /**
+   * 全てのDisplayObjectとEventListenerを解除する。
+   */
+  protected onDisposeFunction(): void {
+    this.removeAllListeners();
+    this._base.removeAllListeners();
+    this._slideButton.removeAllListeners();
+    this.removeChildren();
+  }
+
+  /**
+   * スライダーのドラッグを開始する
+   * @param {Object} e
+   */
+  private startMove = (e: FederatedPointerEvent) => {
+    this.onPressedSliderButton(e as FederatedPointerEvent);
+  };
+
+  /**
+   * スライダーのドラッグ中の処理
+   * @param e
+   */
+  private moveSlider = (e: FederatedPointerEvent | PointerEvent): void => {
+    this.onMoveSlider(e);
+  };
+
+  /**
+   * 各MCの位置、サイズをマウスポインタの位置に合わせて更新する
+   * moveSliderの内部処理
+   * @param  mousePos SliderViewを原点としたローカルのマウス座標、limitSliderButtonPosition関数で可動範囲に制限済み。
+   */
+  private updateParts(mousePos: number): void {
+    const stretch = (target: Container) => {
+      SliderViewUtil.setSize(
+        target,
+        this.isHorizontal,
+        mousePos - SliderViewUtil.getPosition(target, this.isHorizontal)
+      );
+    };
+    //バーマスクがなければ、バー自体を伸縮する
+    if (this._bar && !this._barMask) {
+      stretch(this._bar);
+    }
+    //バーマスクがあれば、マスクを伸縮する。
+    if (this._barMask) {
+      stretch(this._barMask);
+    }
+    //ボタンの位置を更新する。
+    SliderViewUtil.setPosition(this._slideButton, this.isHorizontal, mousePos);
+  }
+
+  /**
+   * スライダーのドラッグ終了時の処理
+   */
+  private moveSliderFinish = () => {
+    this.isDragging = false;
+
+    SliderViewUtil.removeEventListenerFromTarget(
+      this.buttonRootContainer,
+      'pointermove',
+      this.moveSlider
+    );
+
+    this._slideButton.off('pointerup', this.moveSliderFinish);
+    this._slideButton.off('pointerupoutside', this.moveSliderFinish);
+    this.sliderEventEmitter.emit(
+      'slider_change_finished',
+      new SliderEventContext(this.rate)
+    );
+  };
+
+  /**
+   * ドラッグ中のマウス座標を取得する。
+   * limitSliderButtonPosition内の処理。
+   */
+
+  private initBase(value: Container): Container {
+    value.eventMode = 'static';
+    value.on('pointertap', (e) => {
+      this.onPressBase(e);
+    });
+    value.on('wheel', this.onWheel);
+    SliderViewUtil.addChildParts(this, value);
+    return value;
+  }
+
+  private onWheel = (e: FederatedWheelEvent) => {
+    const nextRate = SliderViewUtil.clamp(
+      this.rate + e.deltaY * this.wheelSpeed,
+      SliderView.MAX_RATE,
+      0.0
+    );
+    this.changeRate(nextRate);
+  };
+
+  private initBarAndMask(value?: Container): Container | undefined {
+    if (value == null) return;
+    value.eventMode = 'none';
+    SliderViewUtil.addChildParts(this, value);
+    return value;
+  }
+
+  private initSliderButton(value: Container): Container {
+    value.on('pointerdown', this.startMove);
+    value.on('wheel', this.onWheel);
+    value.eventMode = 'static';
+    SliderViewUtil.addChildParts(this, value);
+    return value;
+  }
+}
